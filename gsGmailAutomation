@@ -1,0 +1,31 @@
+function enviarEmails() {
+  // Acessa a planilha pelo ID e seleciona a aba específica
+  var ss = SpreadsheetApp.openById(' ');
+  var aba = ss.getSheetByName(' ');
+  var values = aba.getDataRange().getValues();
+
+  for (var i = 1; i < values.length; i++) {
+    // Coluna D (índice 3) é "MANDAMOS?"
+    var enviado = values[i][3]; 
+    
+    // Verifica se a linha não está vazia e se ainda não foi enviado
+    if (values[i][0] !== "" && enviado !== 'Sim') { 
+      var nome = values[i][0];     // Coluna A (NOME)
+      var email = values[i][1];    // Coluna B (EMAIL)
+      var pagamento = values[i][2]; // Coluna C (PGTO)
+
+      var assunto = 'COMPRA ';
+      var mensagem = 'Olá, ' + nome + '\n\nAgradecemos a compra. Para podermos proceder com o tipo de pagamento escolhido (' + pagamento + '), precisaremos marcar uma data para que possa ir ao -- efetuar o pagamento. Qual data seria a melhor para você?' + '\n\nAtenciosamente, \n --';
+
+      try {
+        MailApp.sendEmail(email, assunto, mensagem);
+        // Marca "Sim" na Coluna D (4ª coluna) da aba --
+        aba.getRange(i + 1, 4).setValue('Sim');
+      } catch (e) {
+        Logger.log("Erro ao enviar para: " + email);
+      }
+      
+      Utilities.sleep(500);
+    }
+  }
+}
