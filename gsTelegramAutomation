@@ -1,0 +1,57 @@
+function enviaMensagem() {
+  var ss = SpreadsheetApp.openById('')
+  var aba = ss.getSheetByName('')
+  var values = aba.getDataRange().getValues()
+  
+  var aba2 = ss.getSheetByName('')
+  var values2 = aba2.getDataRange().getValues()
+  var aba3 = ss.getSheetByName('')
+ 
+  // Automação mensagem
+  var token = ''
+  var chatId = ''
+  var url = 'https://api.telegram.org/bot' + token + '/getUpdates/'
+
+  for (var i = 1; i < values.length; i++) {
+    var data = new Date
+    var dia = String(data.getDate()).padStart(2, '0');
+    var mes = String(data.getMonth() + 1).padStart(2, '0'); // Mês inicia em 0
+    var ano = data.getFullYear();
+    var horas = String(data.getHours()).padStart(2, '0');
+    var minutos = String(data.getMinutes()).padStart(2, '0');
+    var dataAtual = `${dia}/${mes}/${ano} às ${horas}:${minutos}`;
+    
+    var enviado = values[i][2]
+
+    if (values[i][0] !== "" && enviado !== "Ok") {
+      var professor = values2[i][2]
+      var disciplina = values[i][1]
+      var aviso = values[i][0]
+      var mensagem = disciplina+' \n\nProfessor(a): ' + professor + '\nMensagem:\n' + aviso + '\n \nEsta mensagem é automática. Envio: ' + dataAtual
+      // console.log(mensagem)
+      var payload = {
+        chat_id: chatId,
+        text: mensagem
+      };
+
+      var options = {
+        method: "post",
+        contentType: "application/json",
+        payload: JSON.stringify(payload)
+      };
+
+      var url = 'https://api.telegram.org/bot' + token + '/sendMessage'
+      UrlFetchApp.fetch(url, options);
+      Utilities.sleep(1050)
+    }
+
+      aba.getRange(i + 1,3).setValue('Ok')
+  }
+    
+  
+  for (var i = 1; i < values2.length; i++) {
+    aba3.getRange(i + 1,1).setValue(values2[i][0])
+    
+    aba.getRange(i + 1,3).setValue('')
+  }
+}
